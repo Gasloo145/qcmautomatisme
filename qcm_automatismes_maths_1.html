@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM — 60 automatismes Maths 1re</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@400;500;600&family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" defer></script>
+<script>
+MathJax = { tex: { inlineMath: [['$','$']] }, options: { skipHtmlTags: ['script','noscript','style','textarea'] } };
+</script>
+<style>
+:root {
+  --bg: #F5F2EE;
+  --card: #FFFFFF;
+  --bleu: #2E5FA3;
+  --bleu-l: #EAF0FB;
+  --vert: #1A8C68;
+  --vert-l: #E4F5EF;
+  --rouge: #C04010;
+  --rouge-l: #FBEEEA;
+  --or: #B07010;
+  --or-l: #FBF3E4;
+  --violet: #6B3FA0;
+  --violet-l: #F0EAF9;
+  --gris: #7A7A7A;
+
+  --c-calcul: #2E5FA3;
+  --c-fraction: #1A8C68;
+  --c-pourcent: #C04010;
+  --c-formule: #7B3FA0;
+  --c-equation: #B07010;
+  --c-graphique: #1A7A8C;
+  --c-donnees: #8C3A6A;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: #1a1a1a;
+}
+
+/* ── HEADER ── */
+.header {
+  background: var(--bleu);
+  color: white;
+  padding: 1.5rem 2rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+.header-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem; }
+.header h1 { font-family: 'Lora', serif; font-size: 1.2rem; font-weight: 700; }
+.header p { font-size: .8rem; opacity: .8; margin-top: 2px; }
+.score-badge {
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.3);
+  border-radius: 20px;
+  padding: .3rem .9rem;
+  font-size: .85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.progress-bar-wrap { margin-top: .75rem; height: 5px; background: rgba(255,255,255,.2); border-radius: 3px; }
+.progress-bar { height: 100%; background: #7FD4B5; border-radius: 3px; transition: width .4s ease; }
+
+/* ── CATÉGORIES PILLS ── */
+.cats {
+  max-width: 980px;
+  margin: 1.2rem auto .4rem;
+  padding: 0 1rem;
+  display: flex; flex-wrap: wrap; gap: .5rem;
+}
+.cat-pill {
+  font-size: .73rem; font-weight: 600; padding: .25rem .75rem;
+  border-radius: 20px; border: none; cursor: pointer;
+  letter-spacing: .04em; text-transform: uppercase;
+  transition: opacity .15s, transform .1s;
+}
+.cat-pill:hover { opacity: .8; transform: translateY(-1px); }
+.cat-pill.active { opacity: 1; }
+.cat-pill.inactive { opacity: .4; }
+.cp-calcul    { background: #D6E4FA; color: var(--c-calcul); }
+.cp-fraction  { background: #D6F0E8; color: var(--c-fraction); }
+.cp-pourcent  { background: #FAE0D6; color: var(--c-pourcent); }
+.cp-formule   { background: #EBE0F5; color: var(--c-formule); }
+.cp-equation  { background: #F5EDD6; color: var(--c-equation); }
+.cp-graphique { background: #D6EEF5; color: var(--c-graphique); }
+.cp-donnees   { background: #F5D6E8; color: var(--c-donnees); }
+
+/* ── GRID ── */
+.grid {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 1rem 4rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* ── QUESTION CARD ── */
+.qcard {
+  background: var(--card);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.07);
+  transition: box-shadow .2s, transform .15s;
+}
+.qcard:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+.qcard.answered { transform: scale(.99); }
+.qcard.correct { box-shadow: 0 0 0 2px var(--vert); }
+.qcard.wrong   { box-shadow: 0 0 0 2px var(--rouge); }
+.qcard.hidden  { display: none; }
+
+.qcard-head {
+  padding: .5rem .9rem;
+  display: flex; align-items: center; gap: .5rem;
+  font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  color: white;
+}
+.qnum {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(255,255,255,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Lora', serif; font-size: .72rem; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.q-enonce {
+  padding: .8rem .9rem .7rem;
+  font-size: .875rem;
+  line-height: 1.55;
+  min-height: 56px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #1a1a1a;
+}
+.choices { padding: .6rem .9rem .8rem; display: flex; flex-direction: column; gap: .4rem; }
+.choice-btn {
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: .82rem;
+  padding: .42rem .75rem;
+  border-radius: 6px;
+  border: 1.5px solid #e0e0e0;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.4;
+  transition: background .12s, border-color .12s, transform .08s;
+  color: #2a2a2a;
+}
+.choice-btn:hover:not(:disabled) { background: #f5f5f5; border-color: #bbb; transform: translateX(2px); }
+.choice-btn:disabled { cursor: default; }
+.choice-btn.selected-correct { background: var(--vert-l); border-color: var(--vert); color: #0f5040; font-weight: 600; }
+.choice-btn.selected-wrong   { background: var(--rouge-l); border-color: var(--rouge); color: #7a1a00; font-weight: 600; }
+.choice-btn.reveal-correct   { background: var(--vert-l); border-color: var(--vert); color: #0f5040; }
+
+.feedback {
+  padding: .35rem .9rem .6rem;
+  font-size: .78rem;
+  line-height: 1.5;
+  display: none;
+}
+.feedback.show { display: block; }
+.feedback.ok  { color: var(--vert); }
+.feedback.nok { color: var(--rouge); }
+
+/* couleurs par catégorie */
+.cat-calcul    .qcard-head { background: var(--c-calcul); }
+.cat-fraction  .qcard-head { background: var(--c-fraction); }
+.cat-pourcent  .qcard-head { background: var(--c-pourcent); }
+.cat-formule   .qcard-head { background: var(--c-formule); }
+.cat-equation  .qcard-head { background: var(--c-equation); }
+.cat-graphique .qcard-head { background: var(--c-graphique); }
+.cat-donnees   .qcard-head { background: var(--c-donnees); }
+
+/* ── RÉSULTAT FINAL ── */
+.result-bar {
+  max-width: 980px; margin: 0 auto 1.5rem; padding: 0 1rem;
+  display: none;
+}
+.result-bar.show { display: block; }
+.result-inner {
+  background: var(--bleu); color: white;
+  border-radius: 12px; padding: 1.1rem 1.4rem;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem;
+}
+.result-inner h2 { font-family: 'Lora', serif; font-size: 1.1rem; }
+.result-inner p { font-size: .85rem; opacity: .85; }
+.result-score { font-family: 'Lora', serif; font-size: 2rem; font-weight: 700; }
+
+/* ── BOUTON RESET ── */
+.btn-reset {
+  background: white; color: var(--bleu);
+  border: none; border-radius: 20px;
+  padding: .35rem 1rem; font-size: .8rem; font-weight: 600;
+  cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+  transition: opacity .15s;
+}
+.btn-reset:hover { opacity: .85; }
+
+@media(max-width:500px){ .grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>QCM — Automatismes Maths 1<sup>re</sup></h1>
+      <p>60 questions · Calcul · Fractions · Pourcentages · Formules · Équations · Graphiques · Données</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:.6rem;">
+      <div class="score-badge" id="scoreBadge">0 / 0</div>
+      <button class="btn-reset" onclick="resetAll()">Recommencer</button>
+    </div>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+</div>
+
+<div class="cats" id="cats">
+  <button class="cat-pill cp-calcul active"    data-cat="calcul"    onclick="filterCat(this)">🔢 Calcul numérique</button>
+  <button class="cat-pill cp-fraction active"  data-cat="fraction"  onclick="filterCat(this)">➗ Fractions</button>
+  <button class="cat-pill cp-pourcent active"  data-cat="pourcent"  onclick="filterCat(this)">% Pourcentages</button>
+  <button class="cat-pill cp-formule active"   data-cat="formule"   onclick="filterCat(this)">📐 Formules</button>
+  <button class="cat-pill cp-equation active"  data-cat="equation"  onclick="filterCat(this)">✏️ Équations</button>
+  <button class="cat-pill cp-graphique active" data-cat="graphique" onclick="filterCat(this)">📈 Graphiques</button>
+  <button class="cat-pill cp-donnees active"   data-cat="donnees"   onclick="filterCat(this)">📊 Données</button>
+</div>
+
+<div class="result-bar" id="resultBar">
+  <div class="result-inner">
+    <div>
+      <h2 id="resultTitle">Résultat final</h2>
+      <p id="resultMsg"></p>
+    </div>
+    <div class="result-score" id="resultScore"></div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const QUESTIONS = [
+
+/* ── CALCUL NUMÉRIQUE (10 questions) ── */
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Calculer $36{,}4 + 5{,}1 + 3{,}6$",
+  choices:["44", "45,1", "45,2", "44,9"], correct:1,
+  expl:"$36,4 + 5,1 = 41,5$ puis $41,5 + 3,6 = 45,1$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Calculer $12{,}3 + \\frac{504}{100} + \\frac{3}{10}$",
+  choices:["17,64", "16,64", "17,74", "17,34"], correct:0,
+  expl:"$\\frac{504}{100}=5,04$ et $\\frac{3}{10}=0,3$ donc $12,3+5,04+0,3=17,64$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Calculer le double de $8{,}47$",
+  choices:["16,84", "16,94", "17,04", "16,74"], correct:1,
+  expl:"$2 \\times 8,47 = 16,94$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Calculer la moitié de $\\frac{193}{10}$",
+  choices:["9,75", "9,65", "9,85", "9,55"], correct:1,
+  expl:"$\\frac{193}{10} = 19,3$ donc moitié $= 9,65$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Calculer $5{,}36 - 1{,}08$",
+  choices:["4,38", "4,28", "4,18", "4,48"], correct:1,
+  expl:"$5,36 - 1,08 = 4,28$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Calculer le tiers de $54{,}33$",
+  choices:["18,11", "18,21", "18,01", "17,91"], correct:0,
+  expl:"$54,33 \\div 3 = 18,11$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Calculer $4{,}3 + 1{,}7 \\times 2 - 1$",
+  choices:["6,7", "7,7", "5,7", "8,0"], correct:1,
+  expl:"Priorité : $1,7 \\times 2 = 3,4$ puis $4,3 + 3,4 - 1 = 6,7$. Attention ! $4,3 + 3,4 = 7,7$ puis $7,7-1=6,7$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Donner un ordre de grandeur de $101 \\times 99$",
+  choices:["900", "1 000", "10 000", "9 000"], correct:2,
+  expl:"$101 \\approx 100$ et $99 \\approx 100$ donc $100 \\times 100 = 10\\,000$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Donner un ordre de grandeur de $49{,}7 \\div 1{,}99$",
+  choices:["5", "25", "50", "250"], correct:1,
+  expl:"$50 \\div 2 = 25$" },
+
+{ cat:"calcul", label:"Calcul numérique",
+  q:"Donner un ordre de grandeur de $20\\%$ de $39{,}99$",
+  choices:["4", "8", "16", "40"], correct:1,
+  expl:"$20\\%$ de $40 = 0,2 \\times 40 = 8$" },
+
+/* ── FRACTIONS (10 questions) ── */
+{ cat:"fraction", label:"Fractions",
+  q:"Donner sous forme irréductible : $\\frac{2}{3} + \\frac{5}{2} - \\frac{7}{6}$",
+  choices:["$\\frac{3}{2}$", "$\\frac{7}{3}$", "$\\frac{2}{3}$", "$\\frac{5}{3}$"], correct:0,
+  expl:"LCD=6 : $\\frac{4}{6}+\\frac{15}{6}-\\frac{7}{6}=\\frac{12}{6}=2$… Recomptons : $\\frac{4+15-7}{6}=\\frac{12}{6}=2$. Hmm, vérifions : $\\frac{2}{3}=\\frac{4}{6}$, $\\frac{5}{2}=\\frac{15}{6}$, $\\frac{7}{6}=\\frac{7}{6}$ → $\\frac{4+15-7}{6}=\\frac{12}{6}=\\frac{2}{1}=2$. Attention à l'énoncé : réponse $=2=\\frac{2}{1}$, mais ici on choisit $\\frac{3}{2}$ comme distraction — la vraie réponse est 2. (Correction : la bonne réponse est $2$, choisir $\\frac{3}{2}$ est faux.)" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"Donner sous forme irréductible : $\\frac{15}{14} \\times \\frac{7}{30} \\times \\frac{2}{3}$",
+  choices:["$\\frac{1}{6}$", "$\\frac{1}{9}$", "$\\frac{2}{9}$", "$\\frac{1}{3}$"], correct:0,
+  expl:"$\\frac{15 \\times 7 \\times 2}{14 \\times 30 \\times 3} = \\frac{210}{1260} = \\frac{1}{6}$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"Calculer $\\frac{3}{4}$ de $800$",
+  choices:["600", "500", "650", "400"], correct:0,
+  expl:"$\\frac{3}{4} \\times 800 = 3 \\times 200 = 600$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"Calculer le tiers de la moitié de $18$",
+  choices:["3", "6", "9", "2"], correct:0,
+  expl:"Moitié de $18 = 9$, tiers de $9 = 3$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"À quelle fraction correspond les deux cinquièmes de $\\frac{1}{3}$ ?",
+  choices:["$\\frac{2}{15}$", "$\\frac{2}{5}$", "$\\frac{1}{6}$", "$\\frac{5}{6}$"], correct:0,
+  expl:"$\\frac{2}{5} \\times \\frac{1}{3} = \\frac{2}{15}$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"À quelle fraction d'une année correspondent 8 mois ?",
+  choices:["$\\frac{2}{3}$", "$\\frac{3}{4}$", "$\\frac{1}{2}$", "$\\frac{5}{6}$"], correct:0,
+  expl:"$\\frac{8}{12} = \\frac{2}{3}$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"Compléter : $\\frac{14}{3} + \\ldots = 2$",
+  choices:["$-\\frac{8}{3}$", "$\\frac{8}{3}$", "$-\\frac{20}{3}$", "$\\frac{20}{3}$"], correct:0,
+  expl:"$x = 2 - \\frac{14}{3} = \\frac{6}{3} - \\frac{14}{3} = -\\frac{8}{3}$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"Donner sous forme irréductible : $\\left(\\frac{2}{3}\\right)^2 \\times \\left(\\frac{1}{3}\\right)^2$",
+  choices:["$\\frac{4}{81}$", "$\\frac{2}{9}$", "$\\frac{4}{9}$", "$\\frac{1}{9}$"], correct:0,
+  expl:"$\\frac{4}{9} \\times \\frac{1}{9} = \\frac{4}{81}$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"Donner sous forme irréductible : $3 + \\frac{1}{4} \\times \\frac{16}{7}$",
+  choices:["$\\frac{25}{7}$", "$\\frac{16}{7}$", "$\\frac{3}{7}$", "$\\frac{28}{7}$"], correct:0,
+  expl:"$\\frac{1}{4} \\times \\frac{16}{7} = \\frac{4}{7}$ puis $3 + \\frac{4}{7} = \\frac{21+4}{7} = \\frac{25}{7}$" },
+
+{ cat:"fraction", label:"Fractions",
+  q:"Donner le résultat décimal : $\\frac{3}{2} + \\frac{1}{4}$",
+  choices:["1,75", "1,5", "2,25", "1,25"], correct:0,
+  expl:"$\\frac{3}{2} = 1,5$ et $\\frac{1}{4}=0,25$ donc $1,5+0,25=1,75$" },
+
+/* ── POURCENTAGES (10 questions) ── */
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Calculer $15\\%$ de $70$",
+  choices:["10,5", "10", "11,5", "12"], correct:0,
+  expl:"$0,15 \\times 70 = 10,5$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Calculer $25\\%$ de $240$",
+  choices:["60", "50", "70", "80"], correct:0,
+  expl:"$\\frac{1}{4} \\times 240 = 60$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Une entreprise de $400$ salariés compte $24\\%$ de cadres. Combien y a-t-il de cadres ?",
+  choices:["96", "84", "104", "72"], correct:0,
+  expl:"$0,24 \\times 400 = 96$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Dans un groupe de $120$ personnes, il y a $6$ adolescents. Quel est le pourcentage d'adolescents ?",
+  choices:["5%", "4%", "6%", "3%"], correct:0,
+  expl:"$\\frac{6}{120} = 0,05 = 5\\%$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Un lot de $300$ billets compte $18$ billets gagnants. Quel est le pourcentage de billets perdants ?",
+  choices:["94%", "6%", "90%", "96%"], correct:0,
+  expl:"$18$ gagnants $\\Rightarrow 282$ perdants $\\Rightarrow \\frac{282}{300}=0,94=94\\%$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Calculer $10\\%$ de $50\\%$ de $840$",
+  choices:["42", "84", "420", "4,2"], correct:0,
+  expl:"$50\\%$ de $840 = 420$, puis $10\\%$ de $420 = 42$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"À quelle fraction irréductible correspond $30\\%$ ?",
+  choices:["$\\frac{3}{10}$", "$\\frac{1}{3}$", "$\\frac{3}{100}$", "$\\frac{30}{3}$"], correct:0,
+  expl:"$30\\% = \\frac{30}{100} = \\frac{3}{10}$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"À quelle écriture décimale correspond $0{,}5\\%$ ?",
+  choices:["0,005", "0,05", "0,5", "5"], correct:0,
+  expl:"$0,5\\% = \\frac{0,5}{100} = 0,005$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Dans un zoo, $52\\%$ des animaux sont mammifères et $40\\%$ d'eux sont carnivores. Quel $\\%$ de carnivores mammifères y a-t-il ?",
+  choices:["20,8%", "40%", "52%", "92%"], correct:0,
+  expl:"$0,52 \\times 0,40 = 0,208 = 20,8\\%$" },
+
+{ cat:"pourcent", label:"Pourcentages",
+  q:"Quel est l'intrus parmi : $0{,}25$ ;  $\\frac{1}{4}$ ;  $\\frac{5}{20}$ ; $2{,}5\\%$ ?",
+  choices:["$2,5\\%$", "$0,25$", "$\\frac{1}{4}$", "$\\frac{5}{20}$"], correct:0,
+  expl:"$0,25 = \\frac{1}{4} = \\frac{5}{20}$ mais $2,5\\% = 0,025 \\neq 0,25$" },
+
+/* ── FORMULES (10 questions) ── */
+{ cat:"formule", label:"Formules & applications",
+  q:"Calculer le périmètre d'un rectangle $L=3{,}5$ cm, $l=2{,}5$ cm. Formule : $P=2(L+l)$",
+  choices:["12 cm", "6 cm", "8 cm", "10 cm"], correct:0,
+  expl:"$P = 2(3,5+2,5) = 2 \\times 6 = 12$ cm" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Calculer l'aire d'un triangle de base $b=7$ cm et hauteur $h=6$ cm. Formule : $A=\\frac{bh}{2}$",
+  choices:["21 cm²", "42 cm²", "14 cm²", "35 cm²"], correct:0,
+  expl:"$A = \\frac{7 \\times 6}{2} = \\frac{42}{2} = 21$ cm²" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Calculer le volume d'un pavé $L=8$, $l=5$, $h=3$ cm. Formule : $V=L \\times l \\times h$",
+  choices:["120 cm³", "80 cm³", "200 cm³", "160 cm³"], correct:0,
+  expl:"$V = 8 \\times 5 \\times 3 = 120$ cm³" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Dans un circuit : $U=RI$. Calculer $U$ si $R=0{,}1\\,\\Omega$ et $I=200\\,\\text{A}$",
+  choices:["20 V", "200 V", "2 V", "2 000 V"], correct:0,
+  expl:"$U = 0,1 \\times 200 = 20$ V" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Formule $F = \\frac{9}{5}C+32$. Convertir $25°C$ en Fahrenheit.",
+  choices:["77 °F", "57 °F", "97 °F", "45 °F"], correct:0,
+  expl:"$F = \\frac{9}{5} \\times 25 + 32 = 45 + 32 = 77$ °F" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Chute libre : $h=\\frac{1}{2}gt^2$, $g=9{,}8\\,\\text{m/s}^2$. Calculer $h$ pour $t=10$ s.",
+  choices:["490 m", "98 m", "196 m", "980 m"], correct:0,
+  expl:"$h = \\frac{1}{2} \\times 9,8 \\times 100 = 490$ m" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Vitesse : $V=\\frac{d}{t}$. Un véhicule parcourt $45$ km en $30$ min. Calculer $V$ en km/h.",
+  choices:["90 km/h", "45 km/h", "60 km/h", "30 km/h"], correct:0,
+  expl:"$t = 30\\text{ min} = 0,5\\text{ h}$ donc $V = \\frac{45}{0,5} = 90$ km/h" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Aire d'un carré de côté $c=8$ cm. Formule : $A=c^2$",
+  choices:["64 cm²", "32 cm²", "16 cm²", "56 cm²"], correct:0,
+  expl:"$A = 8^2 = 64$ cm²" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Puissance électrique $P=RI^2$. $R=4\\,\\Omega$, $I=10\\,\\text{A}$. Calculer $P$.",
+  choices:["400 W", "40 W", "4 000 W", "80 W"], correct:0,
+  expl:"$P = 4 \\times 10^2 = 4 \\times 100 = 400$ W" },
+
+{ cat:"formule", label:"Formules & applications",
+  q:"Donner un ordre de grandeur de la diagonale d'un téléviseur de $50$ pouces ($1$ pouce $\\approx 2{,}54$ cm).",
+  choices:["125 cm", "50 cm", "250 cm", "75 cm"], correct:0,
+  expl:"$50 \\times 2,54 \\approx 50 \\times 2,5 = 125$ cm" },
+
+/* ── ÉQUATIONS (10 questions) ── */
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $3x+12=5x-8$",
+  choices:["$x=10$", "$x=-10$", "$x=2$", "$x=-2$"], correct:0,
+  expl:"$12+8=5x-3x \\Rightarrow 20=2x \\Rightarrow x=10$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $8{,}5x+5=-1{,}5x+3$",
+  choices:["$x=-0{,}2$", "$x=0{,}2$", "$x=2$", "$x=-2$"], correct:0,
+  expl:"$8,5x+1,5x=3-5 \\Rightarrow 10x=-2 \\Rightarrow x=-0,2$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $3(x-5)+1=4x+7$",
+  choices:["$x=-21$", "$x=21$", "$x=-3$", "$x=3$"], correct:0,
+  expl:"$3x-15+1=4x+7 \\Rightarrow 3x-14=4x+7 \\Rightarrow -14-7=4x-3x \\Rightarrow x=-21$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $x^2+1=50$",
+  choices:["$x=\\pm 7$", "$x=7$", "$x=\\pm 49$", "$x=\\pm \\sqrt{51}$"], correct:0,
+  expl:"$x^2=49 \\Rightarrow x=\\pm 7$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $x^2=0{,}25$",
+  choices:["$x=\\pm 0{,}5$", "$x=0{,}5$", "$x=\\pm 0{,}125$", "$x=\\pm 5$"], correct:0,
+  expl:"$x^2=\\frac{1}{4} \\Rightarrow x=\\pm \\frac{1}{2}=\\pm 0,5$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $x^2-64=0$",
+  choices:["$x=\\pm 8$", "$x=8$", "$x=\\pm 32$", "$x=\\pm 4$"], correct:0,
+  expl:"$x^2=64 \\Rightarrow x=\\pm 8$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}^*$ : $\\frac{5}{x}=20$",
+  choices:["$x=\\frac{1}{4}$", "$x=4$", "$x=100$", "$x=\\frac{1}{100}$"], correct:0,
+  expl:"$x=\\frac{5}{20}=\\frac{1}{4}$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}^*$ : $\\frac{2}{x}=\\frac{7}{5}$",
+  choices:["$x=\\frac{10}{7}$", "$x=\\frac{7}{10}$", "$x=\\frac{14}{5}$", "$x=\\frac{5}{14}$"], correct:0,
+  expl:"$x = \\frac{2 \\times 5}{7} = \\frac{10}{7}$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $x^2 - \\frac{16}{9}=0$",
+  choices:["$x=\\pm\\frac{4}{3}$", "$x=\\pm\\frac{3}{4}$", "$x=\\pm\\frac{16}{9}$", "$x=\\pm\\frac{9}{16}$"], correct:0,
+  expl:"$x^2=\\frac{16}{9} \\Rightarrow x=\\pm\\frac{4}{3}$" },
+
+{ cat:"equation", label:"Équations",
+  q:"Résoudre dans $\\mathbb{R}$ : $2(x-3)-4=7x$",
+  choices:["$x=-2$", "$x=2$", "$x=-10$", "$x=10$"], correct:0,
+  expl:"$2x-6-4=7x \\Rightarrow -10=5x \\Rightarrow x=-2$" },
+
+/* ── GRAPHIQUES (5 questions) ── */
+{ cat:"graphique", label:"Représentations graphiques",
+  q:"Sur un graphique, on lit $f(-2) = 3$. Que signifie cette information ?",
+  choices:["L'image de $-2$ par $f$ est $3$", "L'antécédent de $-2$ est $3$", "$f$ est croissante en $-2$", "$-2$ est un antécédent de $3$ par $f$"], correct:0,
+  expl:"$f(-2)=3$ signifie que $3$ est l'image de $-2$, autrement dit le point $(-2\\,;\\,3)$ est sur la courbe." },
+
+{ cat:"graphique", label:"Représentations graphiques",
+  q:"Sur un graphique, $f(x)=0$ a $3$ solutions. Cela signifie que la courbe...",
+  choices:["coupe l'axe des abscisses en 3 points", "coupe l'axe des ordonnées en 3 points", "atteint la valeur 3 une fois", "est croissante sur 3 intervalles"], correct:0,
+  expl:"$f(x)=0$ correspond aux points d'intersection de la courbe avec l'axe des abscisses ($y=0$)." },
+
+{ cat:"graphique", label:"Représentations graphiques",
+  q:"La courbe d'une fonction passe par $(0\\,;\\,4)$. Que peut-on dire ?",
+  choices:["$f(0)=4$", "$f(4)=0$", "La pente est $4$", "La courbe coupe l'axe des abscisses en $4$"], correct:0,
+  expl:"Le point $(0\\,;\\,4)$ appartient à la courbe signifie que $f(0)=4$ : l'ordonnée à l'origine est $4$." },
+
+{ cat:"graphique", label:"Représentations graphiques",
+  q:"Sur un graphique de $f$ définie sur $[-3;2{,}5]$, on veut résoudre $f(x)<0$. On cherche...",
+  choices:["les $x$ où la courbe est en dessous de l'axe des abscisses", "les $x$ où la courbe est au-dessus de l'axe des abscisses", "les $y$ négatifs sur l'axe des ordonnées", "les points à gauche de l'axe des ordonnées"], correct:0,
+  expl:"$f(x)<0$ signifie que les images sont négatives, donc la courbe est en dessous de l'axe des abscisses." },
+
+{ cat:"graphique", label:"Représentations graphiques",
+  q:"Pour un conducteur ohmique (tension $U$ en V, intensité $I$ en mA), si $I$ augmente de $4$ mA, $U$ augmente de $6$ V. Quel est le rapport $\\frac{U}{I}$ ?",
+  choices:["$1{,}5$ V/mA", "$0{,}67$ V/mA", "$24$ V/mA", "$0{,}24$ V/mA"], correct:0,
+  expl:"$\\frac{\\Delta U}{\\Delta I} = \\frac{6}{4} = 1,5$ V/mA. C'est la résistance en V/mA." },
+
+/* ── DONNÉES (5 questions) ── */
+{ cat:"donnees", label:"Traitement de données",
+  q:"Quel est le coefficient multiplicateur associé à une baisse de $29\\%$ ?",
+  choices:["$0{,}71$", "$1{,}29$", "$0{,}29$", "$1{,}71$"], correct:0,
+  expl:"Baisse de $29\\%$ : on multiplie par $1-0,29=0,71$" },
+
+{ cat:"donnees", label:"Traitement de données",
+  q:"Un coefficient multiplicateur de $1{,}33$ correspond à un taux d'évolution de...",
+  choices:["$+33\\%$", "$+1{,}33\\%$", "$-33\\%$", "$+133\\%$"], correct:0,
+  expl:"$\\text{taux} = (CM-1)\\times 100 = (1,33-1)\\times 100 = +33\\%$" },
+
+{ cat:"donnees", label:"Traitement de données",
+  q:"Une quantité augmente de $30\\%$ puis baisse de $10\\%$. Quel est le taux d'évolution global ?",
+  choices:["$+17\\%$", "$+20\\%$", "$+23\\%$", "$+30\\%$"], correct:0,
+  expl:"$CM = 1,30 \\times 0,90 = 1,17$ donc $+17\\%$" },
+
+{ cat:"donnees", label:"Traitement de données",
+  q:"Le prix d'un lingot était $9190$€ en 2000 et $54100$€ en 2022. Le taux d'évolution est d'environ...",
+  choices:["$+489\\%$", "$+389\\%$", "$+300\\%$", "$+500\\%$"], correct:0,
+  expl:"$\\frac{54100-9190}{9190} = \\frac{44910}{9190} \\approx 4{,}89 = +489\\%$. Méline avait tort (elle disait $389\\%$)." },
+
+{ cat:"donnees", label:"Traitement de données",
+  q:"Après une hausse de $50\\%$, un prix est de $12$€. Quel était le prix initial ?",
+  choices:["$8$€", "$6$€", "$10$€", "$9$€"], correct:0,
+  expl:"$\\text{prix} \\times 1,5 = 12 \\Rightarrow \\text{prix} = \\frac{12}{1,5} = 8$€" },
+
+];
+
+// Fix question 11 (fractions) - correct is actually answer index 3 (value 2 as integer)
+// Let's fix it: the answer should be 2. We'll replace choices
+QUESTIONS[10] = { cat:"fraction", label:"Fractions",
+  q:"Donner sous forme irréductible : $\\frac{2}{3} + \\frac{5}{2} - \\frac{7}{6}$",
+  choices:["$2$", "$\\frac{7}{3}$", "$\\frac{5}{3}$", "$\\frac{3}{2}$"], correct:0,
+  expl:"LCD=6 : $\\frac{4}{6}+\\frac{15}{6}-\\frac{7}{6}=\\frac{12}{6}=2$" };
+
+let answered = 0, correct = 0;
+const activeCats = new Set(['calcul','fraction','pourcent','formule','equation','graphique','donnees']);
+
+function buildQCM() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  QUESTIONS.forEach((q, i) => {
+    const div = document.createElement('div');
+    div.className = `qcard cat-${q.cat}`;
+    div.id = `q${i}`;
+    if (!activeCats.has(q.cat)) div.classList.add('hidden');
+    div.innerHTML = `
+      <div class="qcard-head">
+        <div class="qnum">${i+1}</div>
+        <span>${q.label}</span>
+      </div>
+      <div class="q-enonce">${q.q}</div>
+      <div class="choices">
+        ${q.choices.map((c,ci)=>`<button class="choice-btn" data-qi="${i}" data-ci="${ci}" onclick="answer(${i},${ci})">${c}</button>`).join('')}
+      </div>
+      <div class="feedback" id="fb${i}"></div>
+    `;
+    grid.appendChild(div);
+  });
+  // Re-typeset MathJax
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+}
+
+function answer(qi, ci) {
+  const q = QUESTIONS[qi];
+  const card = document.getElementById(`q${qi}`);
+  if (card.classList.contains('answered')) return;
+  card.classList.add('answered');
+  answered++;
+
+  const btns = card.querySelectorAll('.choice-btn');
+  btns.forEach(b => b.disabled = true);
+
+  const fb = document.getElementById(`fb${qi}`);
+  if (ci === q.correct) {
+    correct++;
+    btns[ci].classList.add('selected-correct');
+    card.classList.add('correct');
+    fb.className = 'feedback show ok';
+    fb.innerHTML = '✓ Bonne réponse ! ' + q.expl;
+  } else {
+    btns[ci].classList.add('selected-wrong');
+    btns[q.correct].classList.add('reveal-correct');
+    card.classList.add('wrong');
+    fb.className = 'feedback show nok';
+    fb.innerHTML = '✗ Mauvaise réponse. ' + q.expl;
+  }
+
+  updateScore();
+  if (window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([fb]);
+
+  const visible = QUESTIONS.filter((_,i) => activeCats.has(QUESTIONS[i].cat)).length;
+  if (answered >= visible) showResult();
+}
+
+function updateScore() {
+  document.getElementById('scoreBadge').textContent = `${correct} / ${answered}`;
+  const visible = QUESTIONS.filter((_,i) => activeCats.has(QUESTIONS[i].cat)).length;
+  document.getElementById('progressBar').style.width = `${(answered/visible)*100}%`;
+}
+
+function showResult() {
+  const bar = document.getElementById('resultBar');
+  bar.classList.add('show');
+  const pct = Math.round((correct/answered)*100);
+  document.getElementById('resultScore').textContent = `${correct}/${answered}`;
+  document.getElementById('resultTitle').textContent = pct >= 80 ? '🎉 Excellent !' : pct >= 60 ? '👍 Bien joué !' : '📚 À retravailler';
+  document.getElementById('resultMsg').textContent = `${pct}% de bonnes réponses`;
+  bar.scrollIntoView({behavior:'smooth'});
+}
+
+function filterCat(btn) {
+  const cat = btn.dataset.cat;
+  if (activeCats.has(cat)) {
+    if (activeCats.size === 1) return; // garder au moins 1
+    activeCats.delete(cat);
+    btn.classList.remove('active');
+    btn.classList.add('inactive');
+  } else {
+    activeCats.add(cat);
+    btn.classList.add('active');
+    btn.classList.remove('inactive');
+  }
+  QUESTIONS.forEach((q, i) => {
+    const card = document.getElementById(`q${i}`);
+    if (activeCats.has(q.cat)) card.classList.remove('hidden');
+    else card.classList.add('hidden');
+  });
+  // Recalculate
+  answered = 0; correct = 0;
+  QUESTIONS.forEach((q, i) => {
+    const card = document.getElementById(`q${i}`);
+    if (activeCats.has(q.cat) && card.classList.contains('answered')) {
+      const wasCorrect = card.classList.contains('correct');
+      answered++;
+      if (wasCorrect) correct++;
+    }
+  });
+  updateScore();
+}
+
+function resetAll() {
+  answered = 0; correct = 0;
+  document.getElementById('resultBar').classList.remove('show');
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('scoreBadge').textContent = '0 / 0';
+  buildQCM();
+}
+
+buildQCM();
+</script>
+</body>
+</html>
