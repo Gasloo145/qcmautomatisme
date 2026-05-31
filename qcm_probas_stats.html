@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QCM — Probabilités &amp; Statistiques</title>
+<script>
+MathJax = {
+  tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea'] }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,700&family=Source+Sans+3:wght@400;500;600&family=Source+Code+Pro:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2EEE9;
+  --bleu:#2E5FA3; --bleu-l:#EAF0FB;
+  --vert:#1A8C68; --vert-l:#E4F5EF;
+  --rouge:#C04010; --rouge-l:#FBF0EB;
+  --or:#B07010; --or-l:#FBF3E4;
+  --violet:#7B3FA0; --violet-l:#F3EBF9;
+  --rose:#B8387A; --rose-l:#FCF0F5;
+  --cyan:#1A7A8C; --cyan-l:#E3F4F7;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--bg);color:#1a1a1a;padding-bottom:5rem;}
+
+/* ── HEADER ── */
+.header{background:linear-gradient(135deg,#1A7A8C 0%,#2E5FA3 100%);padding:1.4rem 1.5rem 1rem;position:sticky;top:0;z-index:100;box-shadow:0 3px 14px rgba(0,0,0,.18);}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.5rem;max-width:980px;margin:0 auto;}
+.header h1{font-family:'Lora',serif;font-size:1.2rem;font-weight:700;color:white;line-height:1.2;}
+.header p{font-size:.78rem;color:rgba(255,255,255,.78);margin-top:3px;}
+.hright{display:flex;align-items:center;gap:.55rem;flex-wrap:wrap;}
+.score-pill{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:.28rem .9rem;font-size:.85rem;font-weight:600;color:white;white-space:nowrap;}
+.btn-reset{background:white;color:var(--bleu);border:none;border-radius:20px;padding:.28rem .9rem;font-size:.8rem;font-weight:600;cursor:pointer;font-family:inherit;}
+.btn-reset:hover{opacity:.85;}
+.pbar-wrap{max-width:980px;margin:.75rem auto 0;height:5px;background:rgba(255,255,255,.2);border-radius:3px;}
+.pbar{height:100%;background:#7FD4B5;border-radius:3px;transition:width .4s;}
+
+/* ── CATÉGORIES ── */
+.cats{max-width:980px;margin:1.1rem auto .3rem;padding:0 1rem;display:flex;flex-wrap:wrap;gap:.45rem;}
+.cpill{font-size:.7rem;font-weight:700;padding:.22rem .7rem;border-radius:20px;border:none;cursor:pointer;letter-spacing:.05em;text-transform:uppercase;transition:opacity .15s,transform .1s;}
+.cpill:hover{opacity:.8;transform:translateY(-1px);}
+.cpill.off{opacity:.35;}
+.cp1{background:#D6EEF5;color:var(--cyan);}
+.cp2{background:#EBE0F5;color:var(--violet);}
+.cp3{background:#D6F0E8;color:var(--vert);}
+.cp4{background:#FAE0D6;color:var(--rouge);}
+.cp5{background:#F5D6EA;color:var(--rose);}
+.cp6{background:#F5EDD6;color:var(--or);}
+
+/* ── RESULT BAR ── */
+.resbar{max-width:980px;margin:.5rem auto 1rem;padding:0 1rem;display:none;}
+.resbar.show{display:block;}
+.resinner{background:linear-gradient(135deg,#1A7A8C,#2E5FA3);border-radius:10px;padding:1rem 1.4rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.resinner h2{font-family:'Lora',serif;font-size:1rem;color:white;}
+.resinner p{font-size:.82rem;color:rgba(255,255,255,.8);}
+.resscore{font-family:'Lora',serif;font-size:2rem;font-weight:700;color:white;}
+
+/* ── GRID ── */
+.grid{max-width:980px;margin:0 auto;padding:0 1rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;}
+
+/* ── QCARD ── */
+.qcard{background:white;border-radius:11px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.07);transition:box-shadow .2s;}
+.qcard:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);}
+.qcard.correct{box-shadow:0 0 0 2px var(--vert);}
+.qcard.wrong{box-shadow:0 0 0 2px var(--rouge);}
+.qcard.hidden{display:none;}
+
+.qhead{padding:.55rem .95rem;display:flex;align-items:center;gap:.5rem;}
+.qhead span.cat-label{font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:white;flex:1;}
+.qhead .qnum{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:white;flex-shrink:0;}
+
+.q-text{padding:.8rem .95rem .7rem;font-size:.865rem;line-height:1.6;min-height:60px;border-bottom:1px solid #f0f0f0;}
+.q-data{padding:.4rem .95rem .2rem;font-size:.8rem;background:#f9f9f9;border-bottom:1px solid #eee;font-family:'Source Code Pro',monospace;color:#333;line-height:1.6;}
+
+.choices{padding:.55rem .95rem .75rem;display:flex;flex-direction:column;gap:.38rem;}
+.cbtn{font-family:inherit;font-size:.82rem;padding:.4rem .75rem;border-radius:6px;border:1.5px solid #e0e0e0;background:white;cursor:pointer;text-align:left;line-height:1.4;color:#2a2a2a;transition:background .1s,border-color .1s,transform .08s;}
+.cbtn:hover:not(:disabled){background:#f5f5f5;border-color:#bbb;transform:translateX(2px);}
+.cbtn:disabled{cursor:default;}
+.cbtn.ok{background:var(--vert-l);border-color:var(--vert);color:#0f4030;font-weight:600;}
+.cbtn.ko{background:var(--rouge-l);border-color:var(--rouge);color:#7a1a00;font-weight:600;}
+.cbtn.reveal{background:var(--vert-l);border-color:var(--vert);color:#0f4030;}
+
+.fb{padding:.3rem .95rem .65rem;font-size:.78rem;line-height:1.5;display:none;}
+.fb.show{display:block;}
+.fb.ok{color:var(--vert);}
+.fb.ko{color:var(--rouge);}
+
+/* couleurs par cat */
+.cat1 .qhead{background:var(--cyan);}
+.cat2 .qhead{background:var(--violet);}
+.cat3 .qhead{background:var(--vert);}
+.cat4 .qhead{background:var(--rouge);}
+.cat5 .qhead{background:var(--rose);}
+.cat6 .qhead{background:var(--or);}
+
+@media(max-width:500px){.grid{grid-template-columns:1fr;}}
+@media print{body{background:white;}.qcard{box-shadow:none;border:1px solid #ddd;}.fb{display:block!important;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <h1>QCM — Probabilités &amp; Statistiques</h1>
+      <p>Quartiles · Interquartile · Médiane · Probas conditionnelles · Variables aléatoires · Boîtes à moustaches</p>
+    </div>
+    <div class="hright">
+      <div class="score-pill" id="scorePill">0 / 0</div>
+      <button class="btn-reset" onclick="resetAll()">Recommencer</button>
+    </div>
+  </div>
+  <div class="pbar-wrap"><div class="pbar" id="pbar" style="width:0%"></div></div>
+</div>
+
+<div class="cats" id="cats">
+  <button class="cpill cp1" data-cat="cat1" onclick="filterCat(this)">📦 Quartiles &amp; IQ</button>
+  <button class="cpill cp2" data-cat="cat2" onclick="filterCat(this)">📊 Boîte à moustaches</button>
+  <button class="cpill cp3" data-cat="cat3" onclick="filterCat(this)">🎲 Probas simples</button>
+  <button class="cpill cp4" data-cat="cat4" onclick="filterCat(this)">🌿 Probas conditionnelles</button>
+  <button class="cpill cp5" data-cat="cat5" onclick="filterCat(this)">🔢 Variables aléatoires</button>
+  <button class="cpill cp6" data-cat="cat6" onclick="filterCat(this)">📐 Moyenne &amp; dispersion</button>
+</div>
+
+<div class="resbar" id="resbar">
+  <div class="resinner">
+    <div><h2 id="resTitle"></h2><p id="resMsg"></p></div>
+    <div class="resscore" id="resScore"></div>
+  </div>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const QS = [
+
+/* ═══════════════════════════════════════
+   CAT 1 — QUARTILES & INTERQUARTILE (10)
+═══════════════════════════════════════ */
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"Pour une série, $min=5$, $Q_1=12$, $Me=20$, $Q_3=35$, $max=60$. Quel est l'écart interquartile ?",
+  data:"", choices:["23","15","40","55"], correct:0,
+  expl:"$IQ = Q_3 - Q_1 = 35 - 12 = 23$" },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"$Q_1=18$. Quel pourcentage des données est inférieur ou égal à $Q_1$ ?",
+  data:"", choices:["25%","50%","75%","100%"], correct:0,
+  expl:"$Q_1$ est le premier quartile : 25% des données sont en dessous." },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"$Q_3=51$. Quelle affirmation est vraie ?",
+  data:"", choices:["75% des données sont ≤ 51","Au moins 75% des données sont ≤ 51","50% des données sont ≤ 51","25% des données sont ≤ 51"], correct:0,
+  expl:"$Q_3=51$ signifie exactement que 75% des données sont inférieures ou égales à 51. Dire 'au moins 75%' serait faux." },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"Voici des données sur 160 inscrits. Quelle affirmation est FAUSSE ?",
+  data:"min=10 ; Q₁=18 ; Me=32 ; Q₃=51 ; max=83",
+  choices:["Au moins 40 inscrits ont 18 ans ou moins","L'écart interquartile est 73","Au moins 50% ont entre 18 et 51 ans","75% des inscrits ont 51 ans ou moins"], correct:1,
+  expl:"L'écart interquartile vaut $Q_3-Q_1=51-18=33$, pas 73. Les autres affirmations sont correctes." },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"Une série a $Q_1=10$ et $Q_3=40$. L'écart interquartile est :",
+  data:"", choices:["30","50","20","25"], correct:0,
+  expl:"$IQ = Q_3 - Q_1 = 40 - 10 = 30$" },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"Pour 200 élèves, $Q_3=15$ points. Combien d'élèves ont au plus 15 points ?",
+  data:"", choices:["150","50","100","200"], correct:0,
+  expl:"$Q_3$ correspond à 75% des données. $0{,}75 \\times 200 = 150$ élèves." },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"Série : 2, 5, 7, 9, 12, 14, 18, 20. Quelle est la médiane ?",
+  data:"", choices:["10,5","9","12","11"], correct:0,
+  expl:"8 valeurs, médiane = moyenne des 4ᵉ et 5ᵉ valeurs : $(9+12)/2 = 10{,}5$" },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"$Q_1=25$ et $Q_3=55$ pour une série de notes. Quel est l'écart interquartile ?",
+  data:"", choices:["30","40","80","15"], correct:0,
+  expl:"$IQ = 55 - 25 = 30$ points." },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"Pour une série de 80 valeurs, entre $Q_1$ et $Q_3$ se trouvent combien de valeurs ?",
+  data:"", choices:["40","20","60","10"], correct:0,
+  expl:"Entre $Q_1$ et $Q_3$ se trouvent exactement 50% des données : $0{,}5 \\times 80 = 40$." },
+
+{ cat:"cat1", label:"Quartiles & IQ",
+  q:"Une série a pour indicateurs : min=3, Q₁=8, Me=14, Q₃=22, max=40. Quelle affirmation est VRAIE ?",
+  data:"min=3 ; Q₁=8 ; Me=14 ; Q₃=22 ; max=40",
+  choices:["50% des valeurs sont entre 8 et 22","L'étendue vaut 19","25% des valeurs dépassent 8","La médiane est 11"], correct:0,
+  expl:"Entre $Q_1=8$ et $Q_3=22$ se trouvent bien 50% des données. L'étendue est $40-3=37$ (pas 19). 75% des valeurs dépassent 8 (pas 25%). La médiane est 14 (pas 11)." },
+
+/* ═══════════════════════════════════════
+   CAT 2 — BOÎTE À MOUSTACHES (8)
+═══════════════════════════════════════ */
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Dans une boîte à moustaches, que représente la longueur de la boîte centrale ?",
+  data:"", choices:["L'écart interquartile","L'étendue","La médiane","La moyenne"], correct:0,
+  expl:"La boîte centrale va de $Q_1$ à $Q_3$, donc sa longueur est l'écart interquartile $Q_3 - Q_1$." },
+
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Dans une boîte à moustaches, le trait vertical à l'intérieur de la boîte représente :",
+  data:"", choices:["La médiane","La moyenne","Le premier quartile","Le troisième quartile"], correct:0,
+  expl:"Le trait vertical à l'intérieur de la boîte représente toujours la médiane $Me$." },
+
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Boîte à moustaches d'une série. Les moustaches s'étendent de :",
+  data:"min=5 ; Q₁=15 ; Me=25 ; Q₃=40 ; max=70",
+  choices:["5 à 15 et de 40 à 70","15 à 40","5 à 70","0 à 100"], correct:0,
+  expl:"Les moustaches vont du minimum à $Q_1$ (gauche) et de $Q_3$ au maximum (droite). Ici : 5→15 et 40→70." },
+
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Une série A a une boîte plus large qu'une série B. Cela signifie que :",
+  data:"", choices:["La série A est plus dispersée au centre","La série A a plus de valeurs","La série A a une plus grande étendue","La série A a une médiane plus grande"], correct:0,
+  expl:"Une boîte plus large = écart interquartile plus grand = les 50% centraux sont plus étalés = plus de dispersion au centre." },
+
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Pour la boîte à moustaches suivante, quelle est l'étendue ?",
+  data:"min=8 ; Q₁=20 ; Me=30 ; Q₃=45 ; max=72",
+  choices:["64","25","37","52"], correct:0,
+  expl:"Étendue $= max - min = 72 - 8 = 64$." },
+
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Quel indicateur est le moins sensible aux valeurs extrêmes ?",
+  data:"", choices:["L'écart interquartile","L'étendue","La moyenne","Le maximum"], correct:0,
+  expl:"L'écart interquartile ne tient compte que des 50% centraux, donc il est robuste aux valeurs extrêmes." },
+
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Deux séries ont la même médiane mais des boîtes de tailles différentes. Que peut-on dire ?",
+  data:"", choices:["Elles ont la même valeur centrale mais des dispersions différentes","Elles sont identiques","La série avec la plus grande boîte a plus de valeurs","Rien ne peut être conclu"], correct:0,
+  expl:"Même médiane = même valeur centrale. Boîtes différentes = écarts interquartiles différents = dispersions différentes." },
+
+{ cat:"cat2", label:"Boîte à moustaches",
+  q:"Pour la série suivante, la boîte à moustaches est-elle symétrique ?",
+  data:"min=2 ; Q₁=10 ; Me=14 ; Q₃=22 ; max=40",
+  choices:["Non, la médiane n'est pas au centre de la boîte","Oui, la boîte est symétrique","On ne peut pas savoir","Oui, car min et max sont bien placés"], correct:0,
+  expl:"$Q_1=10$, $Me=14$, $Q_3=22$. Distance $Q_1$→$Me = 4$ et $Me$→$Q_3 = 8$. Elles sont inégales → boîte asymétrique." },
+
+/* ═══════════════════════════════════════
+   CAT 3 — PROBABILITÉS SIMPLES (8)
+═══════════════════════════════════════ */
+{ cat:"cat3", label:"Probabilités simples",
+  q:"Une probabilité peut-elle valoir 1,2 ?",
+  data:"", choices:["Non, une probabilité est entre 0 et 1","Oui, si l'événement est très probable","Oui, si l'espace est grand","Non, une probabilité est toujours négative"], correct:0,
+  expl:"Une probabilité est toujours un nombre entre 0 et 1 inclus." },
+
+{ cat:"cat3", label:"Probabilités simples",
+  q:"$P(A) = 0{,}3$. Quelle est la probabilité de l'événement contraire $P(\\bar{A})$ ?",
+  data:"", choices:["0,7","0,3","1,3","0"], correct:0,
+  expl:"$P(\\bar{A}) = 1 - P(A) = 1 - 0{,}3 = 0{,}7$" },
+
+{ cat:"cat3", label:"Probabilités simples",
+  q:"On lance un dé équilibré à 6 faces. Quelle est la probabilité d'obtenir un nombre pair ?",
+  data:"", choices:["$\\frac{1}{2}$","$\\frac{1}{6}$","$\\frac{1}{3}$","$\\frac{2}{3}$"], correct:0,
+  expl:"Nombres pairs : 2, 4, 6 → 3 issues sur 6. $P = \\frac{3}{6} = \\frac{1}{2}$" },
+
+{ cat:"cat3", label:"Probabilités simples",
+  q:"Un sac contient 5 boules rouges, 3 bleues et 2 vertes. On tire une boule au hasard. $P(\\text{rouge}) = $",
+  data:"", choices:["$\\frac{1}{2}$","$\\frac{3}{10}$","$\\frac{1}{5}$","$\\frac{5}{8}$"], correct:0,
+  expl:"$P(\\text{rouge}) = \\frac{5}{10} = \\frac{1}{2}$" },
+
+{ cat:"cat3", label:"Probabilités simples",
+  q:"$A$ et $B$ sont deux événements incompatibles ($A \\cap B = \\emptyset$). $P(A)=0{,}4$ et $P(B)=0{,}3$. Calculer $P(A \\cup B)$.",
+  data:"", choices:["0,7","0,12","0,1","1"], correct:0,
+  expl:"Si $A$ et $B$ sont incompatibles : $P(A \\cup B) = P(A) + P(B) = 0{,}4 + 0{,}3 = 0{,}7$" },
+
+{ cat:"cat3", label:"Probabilités simples",
+  q:"On tire une carte dans un jeu de 52 cartes. Quelle est la probabilité de tirer un as ?",
+  data:"", choices:["$\\frac{1}{13}$","$\\frac{1}{4}$","$\\frac{1}{52}$","$\\frac{4}{13}$"], correct:0,
+  expl:"Il y a 4 as dans 52 cartes : $P = \\frac{4}{52} = \\frac{1}{13}$" },
+
+{ cat:"cat3", label:"Probabilités simples",
+  q:"Utiliser $P(A) = \\frac{Card(A)}{Card(\\Omega)}$. Un dé à 6 faces. Probabilité d'obtenir un nombre supérieur à 4 :",
+  data:"", choices:["$\\frac{1}{3}$","$\\frac{1}{2}$","$\\frac{2}{3}$","$\\frac{1}{6}$"], correct:0,
+  expl:"Les issues favorables sont 5 et 6, soit 2 issues. $P = \\frac{2}{6} = \\frac{1}{3}$" },
+
+{ cat:"cat3", label:"Probabilités simples",
+  q:"$P(A) = 0{,}6$ et $P(B) = 0{,}5$ et $P(A \\cap B) = 0{,}2$. Calculer $P(A \\cup B)$.",
+  data:"", choices:["0,9","1,1","0,3","0,7"], correct:0,
+  expl:"$P(A \\cup B) = P(A)+P(B)-P(A \\cap B) = 0{,}6+0{,}5-0{,}2 = 0{,}9$" },
+
+/* ═══════════════════════════════════════
+   CAT 4 — PROBABILITÉS CONDITIONNELLES (8)
+═══════════════════════════════════════ */
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"Définition : $P_A(B) =$",
+  data:"", choices:["$\\frac{P(A \\cap B)}{P(A)}$","$\\frac{P(A)}{P(B)}$","$P(A) \\times P(B)$","$P(A)+P(B)$"], correct:0,
+  expl:"$P_A(B) = \\frac{P(A \\cap B)}{P(A)}$ : probabilité de $B$ sachant que $A$ est réalisé." },
+
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"$P(A)=0{,}4$ et $P(A \\cap B)=0{,}12$. Calculer $P_A(B)$.",
+  data:"", choices:["0,3","0,48","0,12","3"], correct:0,
+  expl:"$P_A(B) = \\frac{P(A \\cap B)}{P(A)} = \\frac{0{,}12}{0{,}4} = 0{,}3$" },
+
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"$A$ et $B$ sont indépendants, $P(A)=0{,}5$ et $P(B)=0{,}4$. Calculer $P(A \\cap B)$.",
+  data:"", choices:["0,2","0,9","0,1","0,45"], correct:0,
+  expl:"$A$ et $B$ indépendants $\\Rightarrow P(A \\cap B) = P(A) \\times P(B) = 0{,}5 \\times 0{,}4 = 0{,}2$" },
+
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"Tableau croisé. Laquelle est $P_H(F)$ ?",
+  data:"Femmes(F) / Hommes(H) | Sportif: F=30, H=20 | Non sportif: F=10, H=40 | Total: F=40, H=60",
+  choices:["$\\frac{20}{60}$","$\\frac{20}{50}$","$\\frac{30}{40}$","$\\frac{50}{100}$"], correct:0,
+  expl:"$P_H(F)$ = probabilité d'être sportif sachant qu'on est un homme. $= \\frac{20}{60} = \\frac{1}{3}$" },
+
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"Formule des probabilités totales. $P(B) = P(A) \\cdot P_A(B) + P(\\bar{A}) \\cdot P_{\\bar{A}}(B)$. $P(A)=0{,}6$, $P_A(B)=0{,}3$, $P_{\\bar{A}}(B)=0{,}1$. Calculer $P(B)$.",
+  data:"", choices:["0,22","0,4","0,18","0,3"], correct:0,
+  expl:"$P(B) = 0{,}6 \\times 0{,}3 + 0{,}4 \\times 0{,}1 = 0{,}18 + 0{,}04 = 0{,}22$" },
+
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"Laquelle de ces affirmations est VRAIE en général ?",
+  data:"", choices:["$P_A(B) \\neq P_B(A)$","$P_A(B) = P_B(A)$","$P_A(B) = P(A) \\times P(B)$","$P_A(B) + P_B(A) = 1$"], correct:0,
+  expl:"$P_A(B)$ et $P_B(A)$ sont en général différents. C'est l'erreur classique des 'faux positifs'." },
+
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"$A$ et $B$ indépendants. Quelle égalité est VRAIE ?",
+  data:"", choices:["$P_A(B) = P(B)$","$P_A(B) = 0$","$P_A(B) = P(A)$","$P_A(B) = 1$"], correct:0,
+  expl:"Si $A$ et $B$ sont indépendants, savoir que $A$ est réalisé ne change pas la probabilité de $B$ : $P_A(B) = P(B)$." },
+
+{ cat:"cat4", label:"Probabilités conditionnelles",
+  q:"Dans un arbre pondéré, pour calculer $P(A \\cap B)$, on :",
+  data:"", choices:["Multiplie les probabilités sur la branche","Additionne les probabilités sur la branche","Lit directement la valeur","Divise les probabilités"], correct:0,
+  expl:"Règle du produit : sur un chemin d'un arbre, on multiplie les probabilités sur chaque branche." },
+
+/* ═══════════════════════════════════════
+   CAT 5 — VARIABLES ALÉATOIRES (8)
+═══════════════════════════════════════ */
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"$X$ prend les valeurs 1, 2, 3 avec probabilités 0,2 ; 0,5 ; 0,3. Calculer $E(X)$.",
+  data:"X : 1 → 0,2 ; 2 → 0,5 ; 3 → 0,3", choices:["2,1","2","1,5","2,5"], correct:0,
+  expl:"$E(X) = 1 \\times 0{,}2 + 2 \\times 0{,}5 + 3 \\times 0{,}3 = 0{,}2 + 1 + 0{,}9 = 2{,}1$" },
+
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"$X$ représente le gain d'un jeu. $E(X) = 0$. Le jeu est :",
+  data:"", choices:["Équitable","Favorable au joueur","Défavorable au joueur","Impossible"], correct:0,
+  expl:"$E(X) = 0$ signifie qu'en moyenne, le joueur ne gagne ni ne perd → jeu équitable." },
+
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"$X$ prend les valeurs 0, 1, 2 avec $P(X=0)=0{,}3$, $P(X=1)=0{,}5$. Calculer $P(X=2)$.",
+  data:"", choices:["0,2","0,3","0,5","0,8"], correct:0,
+  expl:"La somme des probabilités vaut 1 : $P(X=2) = 1 - 0{,}3 - 0{,}5 = 0{,}2$" },
+
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"Formule de la variance. $V(X) =$",
+  data:"", choices:["$E(X^2) - [E(X)]^2$","$E(X) - E(X^2)$","$[E(X)]^2$","$\\sqrt{E(X^2)}$"], correct:0,
+  expl:"$V(X) = E(X^2) - [E(X)]^2$. L'écart-type est $\\sigma = \\sqrt{V(X)}$." },
+
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"$X$ prend les valeurs 2 et 5. $P(X=2)=0{,}4$ et $P(X=5)=0{,}6$. Calculer $E(X^2)$.",
+  data:"X : 2 → 0,4 ; 5 → 0,6",
+  choices:["16,6","13","11","6,2"], correct:0,
+  expl:"$E(X^2) = 2^2 \\times 0{,}4 + 5^2 \\times 0{,}6 = 4 \\times 0{,}4 + 25 \\times 0{,}6 = 1{,}6 + 15 = 16{,}6$" },
+
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"$E(X) = 3$ et $E(X^2) = 13$. Calculer $V(X)$.",
+  data:"", choices:["4","9","13","6"], correct:0,
+  expl:"$V(X) = E(X^2) - [E(X)]^2 = 13 - 9 = 4$. Écart-type : $\\sigma = \\sqrt{4} = 2$." },
+
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"Une variable aléatoire $X$ est une fonction qui associe à chaque issue de $\\Omega$ :",
+  data:"", choices:["Un nombre réel","Un événement","Une probabilité entre 0 et 1","Un vecteur"], correct:0,
+  expl:"$X : \\Omega \\to \\mathbb{R}$. Une variable aléatoire est une fonction de l'univers vers les réels." },
+
+{ cat:"cat5", label:"Variables aléatoires",
+  q:"On lance deux fois une pièce. $X$ = nombre de faces obtenues. Quelle est la loi de $X$ ?",
+  data:"", choices:["$P(0)=\\frac{1}{4}$ ; $P(1)=\\frac{1}{2}$ ; $P(2)=\\frac{1}{4}$","$P(0)=\\frac{1}{3}$ ; $P(1)=\\frac{1}{3}$ ; $P(2)=\\frac{1}{3}$","$P(0)=\\frac{1}{2}$ ; $P(1)=\\frac{1}{2}$","$P(0)=\\frac{1}{4}$ ; $P(1)=\\frac{1}{4}$ ; $P(2)=\\frac{1}{2}$"], correct:0,
+  expl:"Issues : PP, PF, FP, FF. $X=0$: FF → $\\frac{1}{4}$. $X=1$: PF ou FP → $\\frac{2}{4}=\\frac{1}{2}$. $X=2$: PP → $\\frac{1}{4}$." },
+
+/* ═══════════════════════════════════════
+   CAT 6 — MOYENNE & DISPERSION (8)
+═══════════════════════════════════════ */
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"Série : 4, 6, 8, 10, 12. Calculer la moyenne.",
+  data:"", choices:["8","7","9","10"], correct:0,
+  expl:"$\\bar{x} = \\frac{4+6+8+10+12}{5} = \\frac{40}{5} = 8$" },
+
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"Quelle mesure est la plus sensible aux valeurs extrêmes ?",
+  data:"", choices:["La moyenne","La médiane","L'écart interquartile","Le premier quartile"], correct:0,
+  expl:"La moyenne intègre toutes les valeurs : une valeur extrême la tire fortement. La médiane en est insensible." },
+
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"Série de notes : 5, 8, 12, 15, 20. L'étendue est :",
+  data:"", choices:["15","20","8","12"], correct:0,
+  expl:"Étendue $= max - min = 20 - 5 = 15$" },
+
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"$V(X) = 9$. Quel est l'écart-type $\\sigma$ ?",
+  data:"", choices:["3","9","81","4,5"], correct:0,
+  expl:"$\\sigma = \\sqrt{V(X)} = \\sqrt{9} = 3$" },
+
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"Moyenne pondérée. Notes : 10 (coeff 2), 14 (coeff 3), 8 (coeff 1). Calculer la moyenne.",
+  data:"10 coeff 2 ; 14 coeff 3 ; 8 coeff 1",
+  choices:["11,67","10,67","12","10"], correct:0,
+  expl:"$\\bar{x} = \\frac{10 \\times 2 + 14 \\times 3 + 8 \\times 1}{2+3+1} = \\frac{20+42+8}{6} = \\frac{70}{6} \\approx 11{,}67$" },
+
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"Un petit écart-type signifie que les données sont :",
+  data:"", choices:["Regroupées près de la moyenne","Très dispersées","Toutes égales à la moyenne","Toutes supérieures à la moyenne"], correct:0,
+  expl:"L'écart-type mesure la dispersion autour de la moyenne. Petit $\\sigma$ = données concentrées autour de la moyenne." },
+
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"Série : 2, 2, 2, 2, 2. Quel est l'écart-type ?",
+  data:"", choices:["0","2","1","4"], correct:0,
+  expl:"Toutes les valeurs sont identiques, aucune ne s'écarte de la moyenne → $\\sigma = 0$." },
+
+{ cat:"cat6", label:"Moyenne & dispersion",
+  q:"Dans une classe de 30 élèves, la moyenne est 12. On ajoute un élève avec 18. Quelle est la nouvelle moyenne ?",
+  data:"", choices:["12,2","12,5","13","12,6"], correct:0,
+  expl:"Total initial : $30 \\times 12 = 360$. Nouveau total : $360+18=378$. Nouvelle moyenne : $\\frac{378}{31} \\approx 12{,}2$" },
+
+];
+
+let answered = 0, scoreOk = 0;
+const active = new Set(['cat1','cat2','cat3','cat4','cat5','cat6']);
+
+function build(){
+  const g = document.getElementById('grid');
+  g.innerHTML = '';
+  QS.forEach((q,i)=>{
+    const d = document.createElement('div');
+    d.className = `qcard ${q.cat}`;
+    d.id = `q${i}`;
+    if(!active.has(q.cat)) d.classList.add('hidden');
+    const dataHtml = q.data ? `<div class="q-data">${q.data}</div>` : '';
+    d.innerHTML = `
+      <div class="qhead">
+        <div class="qnum">${i+1}</div>
+        <span class="cat-label">${q.label}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      ${dataHtml}
+      <div class="choices">
+        ${q.choices.map((c,ci)=>`<button class="cbtn" data-qi="${i}" data-ci="${ci}" onclick="ans(${i},${ci})">${c}</button>`).join('')}
+      </div>
+      <div class="fb" id="fb${i}"></div>
+    `;
+    g.appendChild(d);
+  });
+  if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise();
+}
+
+function ans(qi,ci){
+  const q = QS[qi];
+  const card = document.getElementById(`q${qi}`);
+  if(card.classList.contains('done')) return;
+  card.classList.add('done');
+  answered++;
+
+  const btns = card.querySelectorAll('.cbtn');
+  btns.forEach(b=>b.disabled=true);
+  const fb = document.getElementById(`fb${qi}`);
+
+  if(ci===q.correct){
+    scoreOk++;
+    btns[ci].classList.add('ok');
+    card.classList.add('correct');
+    fb.className='fb show ok';
+    fb.innerHTML=`✓ ${q.expl}`;
+  } else {
+    btns[ci].classList.add('ko');
+    btns[q.correct].classList.add('reveal');
+    card.classList.add('wrong');
+    fb.className='fb show ko';
+    fb.innerHTML=`✗ ${q.expl}`;
+  }
+
+  updateScore();
+  if(window.MathJax && MathJax.typesetPromise) MathJax.typesetPromise([fb]);
+
+  const visible = QS.filter((_,i)=>active.has(QS[i].cat)).length;
+  if(answered>=visible) showResult();
+}
+
+function updateScore(){
+  document.getElementById('scorePill').textContent=`${scoreOk} / ${answered}`;
+  const total = QS.filter((_,i)=>active.has(QS[i].cat)).length;
+  document.getElementById('pbar').style.width=`${(answered/total)*100}%`;
+}
+
+function showResult(){
+  const bar = document.getElementById('resbar');
+  bar.classList.add('show');
+  const pct = Math.round((scoreOk/answered)*100);
+  document.getElementById('resScore').textContent=`${scoreOk}/${answered}`;
+  document.getElementById('resTitle').textContent = pct>=80?'🎉 Excellent !':pct>=60?'👍 Bien joué !':'📚 À retravailler';
+  document.getElementById('resMsg').textContent=`${pct}% de bonnes réponses`;
+  bar.scrollIntoView({behavior:'smooth'});
+}
+
+function filterCat(btn){
+  const cat = btn.dataset.cat;
+  if(active.has(cat)){
+    if(active.size===1) return;
+    active.delete(cat);
+    btn.classList.add('off');
+  } else {
+    active.add(cat);
+    btn.classList.remove('off');
+  }
+  QS.forEach((_,i)=>{
+    const c = document.getElementById(`q${i}`);
+    active.has(QS[i].cat) ? c.classList.remove('hidden') : c.classList.add('hidden');
+  });
+  answered=0; scoreOk=0;
+  QS.forEach((_,i)=>{
+    const c=document.getElementById(`q${i}`);
+    if(active.has(QS[i].cat)&&c.classList.contains('done')){
+      answered++;
+      if(c.classList.contains('correct')) scoreOk++;
+    }
+  });
+  updateScore();
+}
+
+function resetAll(){
+  answered=0; scoreOk=0;
+  document.getElementById('resbar').classList.remove('show');
+  document.getElementById('pbar').style.width='0%';
+  document.getElementById('scorePill').textContent='0 / 0';
+  build();
+}
+
+build();
+</script>
+</body>
+</html>
